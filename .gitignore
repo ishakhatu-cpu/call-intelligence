@@ -1,0 +1,14 @@
+.env
+.env.local
+venv/
+__pycache__/
+*.pyc
+temp_*
+sample_call.mp3
+test_*.py
+disc*.py
+debug.py
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
