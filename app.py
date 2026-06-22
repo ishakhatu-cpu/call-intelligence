@@ -229,8 +229,16 @@ if analyze_btn:
     with open(temp_path, "wb") as f:
         f.write(uploaded_file.getbuffer())
 
-    audio = MutagenFile(temp_path)
-    duration_seconds = int(audio.info.length) if audio and audio.info else 60
+    try:
+        from pydub import AudioSegment
+        audio_segment = AudioSegment.from_file(temp_path)
+        fixed_path = temp_path.replace(".mp3", "_fixed.mp3")
+        audio_segment.export(fixed_path, format="mp3")
+        temp_path = fixed_path
+        audio = MutagenFile(temp_path)
+except Exception:
+        audio = None
+duration_seconds = int(audio.info.length) if audio and audio.info else 60
 
     with st.spinner("Looking up contact in Freshsales..."):
         contact = find_contact_by_phone(phone_number.strip())
