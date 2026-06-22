@@ -236,7 +236,7 @@ if analyze_btn:
         audio_segment.export(fixed_path, format="mp3")
         temp_path = fixed_path
         audio = MutagenFile(temp_path)
-except Exception:
+    except Exception:
         audio = None
 duration_seconds = int(audio.info.length) if audio and audio.info else 60
 
