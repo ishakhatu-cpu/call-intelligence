@@ -17,6 +17,7 @@ FS_API_KEY = os.getenv("FRESHSALES_API_KEY")
 
 FS_HEADERS = {
     "Content-Type": "application/json",
+    "Accept": "application/json",
     "Authorization": f"Token token={FS_API_KEY}"
 }
 
