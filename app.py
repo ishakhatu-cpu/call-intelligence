@@ -26,6 +26,8 @@ def find_contact_by_phone(phone):
     url = f"https://{FS_DOMAIN}/crm/sales/api/lookup"
     params = {"q": phone.replace("+", "%2B"), "f": "mobile_number", "entities": "contact"}
     r = requests.get(url, headers=FS_HEADERS, params=params, auth=FS_AUTH)
+    st.write("API status:", r.status_code)
+    st.write("API response:", r.json())  # ← temporary debug
     if r.status_code != 200:
         return None
     for c in r.json().get("contacts", {}).get("contacts", []):
