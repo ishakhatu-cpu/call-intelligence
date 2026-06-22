@@ -13,8 +13,8 @@ load_dotenv()
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 FS_DOMAIN = os.getenv("FRESHSALES_DOMAIN")
-FS_EMAIL = os.getenv("FS_ADMIN_EMAIL")
-FS_PASSWORD = os.getenv("FS_ADMIN_PASSWORD")
+FS_EMAIL = os.getenv("partnerships@stayvista.com")
+FS_PASSWORD = os.getenv("Team@2024")
 
 FS_AUTH = HTTPBasicAuth(FS_EMAIL, FS_PASSWORD)
 FS_HEADERS = {"Content-Type": "application/json"}
