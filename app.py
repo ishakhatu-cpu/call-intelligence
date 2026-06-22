@@ -22,7 +22,7 @@ FS_HEADERS = {"Content-Type": "application/json"}
 # ===== Freshsales helpers (Basic Auth) =====
 
 def find_contact_by_phone(phone):
-    url = f"https://{FS_DOMAIN}/crm/sales/api/lookup"
+    url = f"https://{FS_DOMAIN}/api/lookup"
     params = {"q": phone.replace("+", "%2B"), "f": "mobile_number", "entities": "contact"}
     r = requests.get(url, headers=FS_HEADERS, params=params, auth=FS_AUTH)
     st.write("API status:", r.status_code)
