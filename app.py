@@ -15,8 +15,10 @@ client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 FS_DOMAIN = os.getenv("FRESHSALES_DOMAIN")
 FS_API_KEY = os.getenv("FRESHSALES_API_KEY")
 
-FS_AUTH = HTTPBasicAuth(FS_API_KEY, "X")
-FS_HEADERS = {"Content-Type": "application/json"}
+FS_HEADERS = {
+    "Content-Type": "application/json",
+    "Authorization": f"Token token={FS_API_KEY}"
+}
 
 
 # ===== Freshsales helpers (Basic Auth) =====
@@ -24,7 +26,7 @@ FS_HEADERS = {"Content-Type": "application/json"}
 def find_contact_by_phone(phone):
     url = f"https://{FS_DOMAIN}/crm/sales/api/lookup"
     params = {"q": phone.replace("+", "%2B"), "f": "mobile_number", "entities": "contact"}
-    r = requests.get(url, headers=FS_HEADERS, params=params, auth=FS_AUTH)
+    r = requests.get(url, headers=FS_HEADERS, params=params)
     st.write("API status:", r.status_code)
     st.write("API response:", r.text)  # ← temporary debug
     if r.status_code != 200:
