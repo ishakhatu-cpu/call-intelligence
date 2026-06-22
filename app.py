@@ -26,6 +26,8 @@ FS_HEADERS = {
 def find_contact_by_phone(phone):
     url = f"https://{FS_DOMAIN}/crm/sales/api/lookup"
     params = {"q": phone.replace("+", "%2B"), "f": "mobile_number", "entities": "contact"}
+    st.write("Calling URL:", url)          # ← add this
+    st.write("Headers:", FS_HEADERS)       # ← add this
     r = requests.get(url, headers=FS_HEADERS, params=params)
     st.write("API status:", r.status_code)
     st.write("API response:", r.text)  # ← temporary debug
