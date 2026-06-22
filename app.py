@@ -238,7 +238,7 @@ if analyze_btn:
         audio = MutagenFile(temp_path)
     except Exception:
         audio = None
-duration_seconds = int(audio.info.length) if audio and audio.info else 60
+    duration_seconds = int(audio.info.length) if audio and audio.info else 60
 
     with st.spinner("Looking up contact in Freshsales..."):
         contact = find_contact_by_phone(phone_number.strip())
