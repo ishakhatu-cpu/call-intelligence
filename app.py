@@ -24,7 +24,7 @@ FS_HEADERS = {"Content-Type": "application/json"}
 
 def find_contact_by_phone(phone):
     url = f"https://{FS_DOMAIN}/crm/sales/api/lookup"
-    params = {"q": phone, "f": "mobile_number", "entities": "contact"}
+    params = {"q": phone_number.replace("+", "%2B"), "f": "mobile_number", "entities": "contact"}
     r = requests.get(url, headers=FS_HEADERS, params=params, auth=FS_AUTH)
     if r.status_code != 200:
         return None
