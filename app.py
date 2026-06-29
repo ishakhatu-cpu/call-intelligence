@@ -31,19 +31,21 @@ FS_HEADERS = {
 # ===== Freshsales helpers =====
 
 def find_contact_by_phone(phone):
-    url = f"https://{FS_DOMAIN}/crm/sales/api/lookup"
-    params = {"q": phone.replace("+", "%2B"), "f": "mobile_number", "entities": "contact"}
-    st.write("Calling URL:", url)
-    st.write("Domain URL:", FS_DOMAIN)
-    st.write("Headers:", FS_HEADERS)
+    url = f"https://{FS_DOMAIN}/crm/sales/api/search"
+    params = {"q": phone, "include": "contact"}
+    
     r = requests.get(url, headers=FS_HEADERS, params=params)
+    st.write("Calling URL:", url)
     st.write("API status:", r.status_code)
     st.write("API response:", r.text)
+    
     if r.status_code != 200:
         return None
-    for c in r.json().get("contacts", {}).get("contacts", []):
-        if c.get("mobile_number") == phone:
-            return c
+    
+    results = r.json()
+    contacts = results.get("contacts", [])
+    if contacts:
+        return contacts[0]
     return None
 
 
