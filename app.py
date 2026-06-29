@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from groq import Groq
 from openai import OpenAI
 from mutagen import File as MutagenFile
-from pydub import AudioSegment
+
 
 load_dotenv()
 
