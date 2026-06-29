@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from groq import Groq
 from openai import OpenAI
 from mutagen import File as MutagenFile
+from pydub import AudioSegment
 
 load_dotenv()
 
@@ -245,7 +246,6 @@ if analyze_btn:
         f.write(uploaded_file.getbuffer())
 
     try:
-        from pydub import AudioSegment
         audio_segment = AudioSegment.from_file(temp_path)
         fixed_path = temp_path.replace(".mp3", "_fixed.mp3")
         audio_segment.export(fixed_path, format="mp3")
