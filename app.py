@@ -282,6 +282,12 @@ if analyze_btn:
 
     # ===== TRANSCRIPTION via OpenAI Whisper =====
     with st.spinner("Transcribing & translating audio to English..."):
+        # Compress to mono 16kHz mp3 to stay under Groq's 25MB limit
+        from pydub import AudioSegment
+        compressed_path = "compressed_audio.mp3"
+        audio_seg = AudioSegment.from_file(temp_path)
+        audio_seg = audio_seg.set_channels(1).set_frame_rate(16000)
+        audio_seg.export(compressed_path, format="mp3", bitrate="64k")
         with open(temp_path, "rb") as file:
             transcription = groq_client.audio.translations.create(
                 file=(uploaded_file.name, file.read()),
