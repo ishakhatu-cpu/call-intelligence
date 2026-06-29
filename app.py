@@ -35,19 +35,20 @@ def find_contact_by_phone(phone):
     params = {"q": phone, "include": "contact"}
     
     r = requests.get(url, headers=FS_HEADERS, params=params)
-    st.write("Calling URL:", url)
     st.write("API status:", r.status_code)
     st.write("API response:", r.text)
     
     if r.status_code != 200:
         return None
     
-    results = r.json()
-    contacts = results.get("contacts", [])
-    if contacts:
-        return contacts[0]
+    results = r.json()  # this is a LIST, not a dict
+    
+    # Filter for contacts only (response may include deals, accounts etc)
+    for item in results:
+        if item.get("type") == "contact":
+            return item  # return first contact match
+    
     return None
-
 
 def find_routing_target(contact_id):
     """
