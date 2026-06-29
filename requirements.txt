@@ -1,5 +1,6 @@
 streamlit
 groq
+openai
 python-dotenv
 requests
 mutagen
