@@ -281,11 +281,11 @@ if analyze_btn:
         st.warning("No deal or property linked. Routing to **Contact**: " + contact_name)
 
     # ===== TRANSCRIPTION via OpenAI Whisper =====
-    with st.spinner("Transcribing & translating audio to English (OpenAI Whisper)..."):
+    with st.spinner("Transcribing & translating audio to English..."):
         with open(temp_path, "rb") as file:
-            transcription = openai_client.audio.translations.create(
+            transcription = groq_client.audio.translations.create(
                 file=(uploaded_file.name, file.read()),
-                model="whisper-1",
+                model="whisper-large-v3",
             )
         transcript = transcription.text
 
