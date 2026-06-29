@@ -4,3 +4,5 @@ openai
 python-dotenv
 requests
 mutagen
+pydub
+ffmpeg-python
