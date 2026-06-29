@@ -288,6 +288,7 @@ if analyze_btn:
         audio_seg = AudioSegment.from_file(temp_path)
         audio_seg = audio_seg.set_channels(1).set_frame_rate(16000)
         audio_seg.export(compressed_path, format="mp3", bitrate="64k")
+        
         with open(temp_path, "rb") as file:
             transcription = groq_client.audio.translations.create(
                 file=("audio.mp3", file.read()),
