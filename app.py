@@ -7,13 +7,19 @@ from datetime import datetime, timezone
 import streamlit as st
 from dotenv import load_dotenv
 from groq import Groq
+from openai import OpenAI
 from mutagen import File as MutagenFile
 
 load_dotenv()
-client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-FS_DOMAIN = os.getenv("FRESHSALES_DOMAIN")
-FS_API_KEY = os.getenv("FRESHSALES_API_KEY")
+# Groq client - used for LLaMA analysis
+groq_client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+
+# OpenAI client - used for Whisper transcription
+openai_client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+
+FS_DOMAIN = st.secrets["FRESHSALES_DOMAIN"]
+FS_API_KEY = st.secrets["FRESHSALES_API_KEY"]
 
 FS_HEADERS = {
     "Content-Type": "application/json",
@@ -22,17 +28,17 @@ FS_HEADERS = {
 }
 
 
-# ===== Freshsales helpers (Basic Auth) =====
+# ===== Freshsales helpers =====
 
 def find_contact_by_phone(phone):
     url = f"https://{FS_DOMAIN}/crm/sales/api/lookup"
     params = {"q": phone.replace("+", "%2B"), "f": "mobile_number", "entities": "contact"}
-    st.write("Calling URL:", url)          # ← add this
-    st.write("Domain URL:", FS_DOMAIN)          # ← add this
-    st.write("Headers:", FS_HEADERS)       # ← add this
+    st.write("Calling URL:", url)
+    st.write("Domain URL:", FS_DOMAIN)
+    st.write("Headers:", FS_HEADERS)
     r = requests.get(url, headers=FS_HEADERS, params=params)
     st.write("API status:", r.status_code)
-    st.write("API response:", r.text)  # ← temporary debug
+    st.write("API response:", r.text)
     if r.status_code != 200:
         return None
     for c in r.json().get("contacts", {}).get("contacts", []):
@@ -50,7 +56,7 @@ def find_routing_target(contact_id):
     Returns: (target_type, target_id, target_name)
     """
     url = f"https://{FS_DOMAIN}/crm/sales/api/contacts/{contact_id}?include=deals,sales_account"
-    r = requests.get(url, headers=FS_HEADERS, auth=FS_AUTH)
+    r = requests.get(url, headers=FS_HEADERS)
     if r.status_code != 200:
         return ("contact", contact_id, None)
     data = r.json()
@@ -64,7 +70,7 @@ def find_routing_target(contact_id):
 
 
 def push_phone_call(target_type, target_id, phone):
-    """Push a phone_call activity using Runo-style payload + Basic Auth."""
+    """Push a phone_call activity."""
     payload = {
         "phone_call": {
             "call_direction": True,
@@ -73,13 +79,12 @@ def push_phone_call(target_type, target_id, phone):
         }
     }
     r = requests.post(f"https://{FS_DOMAIN}/crm/sales/api/phone_calls",
-                      headers=FS_HEADERS, json=payload, auth=FS_AUTH)
+                      headers=FS_HEADERS, json=payload)
     return r.status_code in (200, 201)
 
 
 def push_note(target_type, target_id, html_body):
-    """Push a separate Note for the AI analysis. Note targetable_type expects
-    PascalCase like 'Deal' / 'SalesAccount' / 'Contact' (not lowercase)."""
+    """Push a separate Note for the AI analysis."""
     type_map = {"deal": "Deal", "sales_account": "SalesAccount", "contact": "Contact"}
     payload = {
         "note": {
@@ -89,7 +94,7 @@ def push_note(target_type, target_id, html_body):
         }
     }
     r = requests.post(f"https://{FS_DOMAIN}/crm/sales/api/notes",
-                      headers=FS_HEADERS, json=payload, auth=FS_AUTH)
+                      headers=FS_HEADERS, json=payload)
     return r.status_code in (200, 201)
 
 
@@ -272,17 +277,19 @@ if analyze_btn:
     else:
         st.warning("No deal or property linked. Routing to **Contact**: " + contact_name)
 
-    with st.spinner("Transcribing & translating audio to English..."):
+    # ===== TRANSCRIPTION via OpenAI Whisper =====
+    with st.spinner("Transcribing & translating audio to English (OpenAI Whisper)..."):
         with open(temp_path, "rb") as file:
-            transcription = client.audio.translations.create(
+            transcription = openai_client.audio.translations.create(
                 file=(uploaded_file.name, file.read()),
-                model="whisper-large-v3",
+                model="whisper-1",
             )
         transcript = transcription.text
 
+    # ===== ANALYSIS via Groq LLaMA =====
     with st.spinner("AI analyzing the call..."):
         prompt = ANALYSIS_PROMPT_TEMPLATE.replace("__TRANSCRIPT__", transcript)
-        response = client.chat.completions.create(
+        response = groq_client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             messages=[{"role": "user", "content": prompt}],
             response_format={"type": "json_object"},
