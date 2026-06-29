@@ -262,8 +262,8 @@ if analyze_btn:
         os.remove(temp_path)
         st.stop()
 
-    contact_id = contact["id"]
-    contact_name = contact.get("display_name", "N/A")
+    contact_id = int(contact["id"])
+    contact_name = contact.get("name") or contact.get("display_name", "N/A")
     st.success("Contact found: **" + contact_name + "** (ID: " + str(contact_id) + ")")
 
     with st.spinner("Routing: checking Deal -> Property -> Contact..."):
